@@ -1,10 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
-import { MessageSquare, Sparkles, RefreshCw } from "lucide-react";
+import { MessageSquare, Sparkles, RefreshCw, ThumbsUp, Check, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { fetchVideoComments, addCommentResponse } from "@/services/api";
+import { fetchVideoComments, addCommentResponse, likeComment, bulkAnswerComments } from "@/services/api";
 
 interface Comment {
   id: string;
@@ -22,6 +22,9 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
   const [activeComment, setActiveComment] = useState<string | null>(null);
   const [customResponse, setCustomResponse] = useState("");
   const [isCustomMode, setIsCustomMode] = useState(false);
+  const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
+  const [respondingComments, setRespondingComments] = useState<Set<string>>(new Set());
+  const [isBulkAnswering, setIsBulkAnswering] = useState(false);
 
   useEffect(() => {
     const loadComments = async () => {
@@ -43,19 +46,41 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
     console.log("Regenerating response for comment:", commentId);
   };
 
+  const handleLikeComment = async (commentId: string) => {
+    try {
+      await likeComment(accessToken, commentId);
+      setLikedComments(new Set([...likedComments, commentId]));
+    } catch (err) {
+      console.error("Failed to like comment:", err);
+    }
+  };
+
+  const handleBulkAnswer = async () => {
+    try {
+      setIsBulkAnswering(true);
+      await bulkAnswerComments(accessToken, videoId);
+      // Refresh comments after bulk answering
+      const fetchedComments = await fetchVideoComments(accessToken, videoId);
+      setComments(fetchedComments);
+    } catch (err) {
+      console.error("Failed to bulk answer comments:", err);
+    } finally {
+      setIsBulkAnswering(false);
+    }
+  };
+
   const handleSubmitResponse = async (commentId: string) => {
     try {
-      const response = isCustomMode ? customResponse : "AI-generated response"; // Replace with actual AI response
+      setRespondingComments(new Set([...respondingComments, commentId]));
+      const response = isCustomMode ? customResponse : "AI-generated response";
       await addCommentResponse(accessToken, commentId, response);
-
-      // Update the local comments state to show the new response
       setComments(comments.map((comment) => (comment.id === commentId ? { ...comment, aiResponse: response } : comment)));
-
       setActiveComment(null);
       setCustomResponse("");
     } catch (err) {
       console.error("Failed to submit response:", err);
-      // Optionally show an error message to the user
+    } finally {
+      setRespondingComments(new Set([...respondingComments].filter((id) => id !== commentId)));
     }
   };
 
@@ -66,14 +91,20 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Comments</h2>
-        <a
-          href={`https://www.youtube.com/watch?v=${videoId}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm text-gray-400 hover:text-white transition-colors"
-        >
-          Go to video →
-        </a>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleBulkAnswer} disabled={isBulkAnswering} className="gap-2">
+            {isBulkAnswering ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            Answer All
+          </Button>
+          <a
+            href={`https://www.youtube.com/watch?v=${videoId}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            Go to video →
+          </a>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -89,12 +120,23 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <p className="font-medium text-white">{comment.author}</p>
-                  {!comment.aiResponse && !activeComment && (
-                    <Button variant="ghost" size="sm" onClick={() => setActiveComment(comment.id)}>
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Answer
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleLikeComment(comment.id)}
+                      disabled={likedComments.has(comment.id)}
+                      className={likedComments.has(comment.id) ? "text-purple-500" : ""}
+                    >
+                      <ThumbsUp className="w-4 h-4" />
                     </Button>
-                  )}
+                    {!comment.aiResponse && !activeComment && (
+                      <Button variant="ghost" size="sm" onClick={() => setActiveComment(comment.id)}>
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Answer
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <p className="text-gray-400 mt-1">{comment.text}</p>
               </div>
@@ -138,7 +180,14 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
                   </div>
                 ) : (
                   <>
-                    <p className="text-sm text-gray-400 mb-1">AI-Generated Response:</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-gray-400">AI-Generated Response</p>
+                      {respondingComments.has(comment.id) ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-purple-500" />
+                      ) : (
+                        <Check className="w-4 h-4 text-green-500" />
+                      )}
+                    </div>
                     <div className="flex items-center justify-between">
                       <p className="text-white">{comment.aiResponse}</p>
                       <Button variant="ghost" size="sm" onClick={() => handleRegenerateResponse(comment.id)}>

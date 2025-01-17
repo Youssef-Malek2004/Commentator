@@ -40,3 +40,29 @@ export async function addCommentResponse(accessToken: string, commentId: string,
     throw new Error("Failed to add response");
   }
 }
+
+export async function likeComment(accessToken: string, commentId: string) {
+  const result = await fetch(`http://localhost:5138/api/youtube/comments/${commentId}/like`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!result.ok) {
+    throw new Error("Failed to like comment");
+  }
+}
+
+export async function bulkAnswerComments(accessToken: string, videoId: string) {
+  const result = await fetch(`http://localhost:5138/api/youtube/videos/${videoId}/bulk-answer`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!result.ok) {
+    throw new Error("Failed to bulk answer comments");
+  }
+}
