@@ -32,6 +32,10 @@ public class YouTubeService : IYouTubeService
                         {
                             ClientId = _configuration["Google:ClientId"],
                             ClientSecret = _configuration["Google:ClientSecret"]
+                        },
+                        Scopes = new[] {
+                            "https://www.googleapis.com/auth/youtube.readonly",
+                            "https://www.googleapis.com/auth/youtube.force-ssl"
                         }
                     }
                 ),
