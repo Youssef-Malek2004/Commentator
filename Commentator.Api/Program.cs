@@ -31,7 +31,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseCors("AllowNextAppProd");
+app.MapGet("Testing", (HttpContext context) =>
+{
+    return Results.Ok("Hi");
+});
+
+app.UseCors("AllowNextApp");
 app.UseHttpsRedirection();
 app.MapControllers();
 

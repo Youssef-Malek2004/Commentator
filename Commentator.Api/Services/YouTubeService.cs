@@ -18,15 +18,18 @@ public class YouTubeService : IYouTubeService
     {
         var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
         {
-            HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken("ya29.a0ARW5m75NQq2EFQCaRXrFGU74WIkaepHQSTJfiHDxYF7fdrOD-S7_3vMLRuzZxvf5L67yoXfHUAkqXzg7atkcZzHgwrptF-jbipmkTFLf1wSQ7c33o4IVwR761rLIO38-sT97TPfNepG_Qj9ssVFsrRc5m8DTXDNST8vRvWscaCgYKAdsSARISFQHGX2MiTp3dbsFxADCRofXmt-33yQ0175")
+            HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
         });
+
+        Console.Out.WriteLine(accessToken);
 
         var channelsRequest = youtubeService.Channels.List("contentDetails");
         channelsRequest.Mine = true;
         var channelsResponse = await channelsRequest.ExecuteAsync();
 
         var videos = new List<VideoDto>();
-        /*foreach (var channel in channelsResponse.Items)
+        
+        foreach (var channel in channelsResponse.Items)
         {
             var uploadsListId = channel.ContentDetails.RelatedPlaylists.Uploads;
             var playlistRequest = youtubeService.PlaylistItems.List("snippet");
@@ -58,7 +61,7 @@ public class YouTubeService : IYouTubeService
                 };
             }));
         }
-*/
+
         return videos;
     }
 
