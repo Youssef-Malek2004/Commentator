@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+
+  --card: 0 0% 4%;
+  --card-foreground: 0 0% 100%;
+
+  --popover: 0 0% 4%;
+  --popover-foreground: 0 0% 100%;
+
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+
+  --secondary: 0 0% 13%;
+  --secondary-foreground: 0 0% 100%;
+
+  --muted: 0 0% 13%;
+  --muted-foreground: 215 20.2% 65.1%;
+
+  --accent: 0 0% 13%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 0 0% 13%;
+  --input: 0 0% 13%;
+  --ring: 0 0% 83.1%;
+
+  --radius: 0.75rem;
+}
+
+* {
+  @apply border-border;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+}
+
+/* Custom scrollbar for modern browsers */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-black/20;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-white/20;
+}
+
+/* Smooth scrolling for the whole page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Better button hover states */
+button,
+.button {
+  @apply transition-all duration-200;
+}
+
+/* Gradient text utilities */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500;
+}
+
+/* Glass effect utility */
+.glass {
+  @apply bg-white/10 backdrop-blur-md border border-white/20;
+}
+
+/* Improved focus states */
+:focus-visible {
+  @apply outline-none ring-2 ring-white/20 ring-offset-2 ring-offset-black;
+}
+
+/* Animation utilities */
+.animate-in {
+  animation: animate-in 0.5s ease-out;
+}
+
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Better default link styles */
+a:not(.button) {
+  @apply text-white/80 hover:text-white transition-colors duration-200;
+}
+
+/* Input styles */
+input,
+textarea,
+select {
+  @apply bg-secondary border-border focus:ring-2 focus:ring-white/20 focus:border-transparent transition-all duration-200;
+}
+
+/* Card hover effect */
+.card-hover {
+  @apply hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-shadow duration-200;
+}
