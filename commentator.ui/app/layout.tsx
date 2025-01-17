@@ -6,7 +6,7 @@ import { Metadata } from "next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Commentator - AI-Powered YouTube Engagement",
+  title: "Commentator.AI",
   description: "Generate engaging, personalized comments for your YouTube videos using advanced AI",
   icons: {
     icon: "/favicon.ico",
