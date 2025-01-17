@@ -52,8 +52,11 @@ public class YouTubeController : ControllerBase
         }
     }
 
-    [HttpPost("videos/{videoId}/comments")]
-    public async Task<IActionResult> AddComment(string videoId, [FromHeader(Name = "Authorization")] string authorization, [FromBody] AddCommentRequest request)
+    [HttpPost("comments/{commentId}/reply")]
+    public async Task<IActionResult> AddCommentResponse(
+        string commentId,
+        [FromHeader(Name = "Authorization")] string authorization,
+        [FromBody] AddResponseRequest request)
     {
         if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
             return Unauthorized();
@@ -62,7 +65,7 @@ public class YouTubeController : ControllerBase
 
         try
         {
-            await _youTubeService.AddComment(accessToken, videoId, request.Text);
+            await _youTubeService.AddCommentResponse(accessToken, commentId, request.Response);
             return Ok();
         }
         catch (Exception ex)
@@ -71,8 +74,8 @@ public class YouTubeController : ControllerBase
         }
     }
 
-    public class AddCommentRequest
+    public class AddResponseRequest
     {
-        public string Text { get; set; } = string.Empty;
+        public string Response { get; set; } = string.Empty;
     }
 }

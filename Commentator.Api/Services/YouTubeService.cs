@@ -9,7 +9,7 @@ public interface IYouTubeService
 {
     Task<IEnumerable<VideoDto>> GetUserVideos(string accessToken);
     Task<IEnumerable<CommentDto>> GetVideoComments(string accessToken, string videoId);
-    Task AddComment(string accessToken, string videoId, string text);
+    Task AddCommentResponse(string accessToken, string commentId, string response);
 }
 
 public class YouTubeService : IYouTubeService
@@ -102,29 +102,23 @@ public class YouTubeService : IYouTubeService
         return Random.Shared.Next(2) == 0 ? null : $"Thank you for your comment! {comment.Split('.')[0]}. We appreciate your feedback!";
     }
 
-    public async Task AddComment(string accessToken, string videoId, string text)
+    public async Task AddCommentResponse(string accessToken, string commentId, string response)
     {
         var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
         {
             HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
         });
 
-        var comment = new CommentThread
+        var comment = new Comment
         {
-            Snippet = new CommentThreadSnippet
+            Snippet = new CommentSnippet
             {
-                VideoId = videoId,
-                TopLevelComment = new Comment
-                {
-                    Snippet = new CommentSnippet
-                    {
-                        TextOriginal = text
-                    }
-                }
+                ParentId = commentId,
+                TextOriginal = response
             }
         };
 
-        await youtubeService.CommentThreads.Insert(comment, "snippet").ExecuteAsync();
+        await youtubeService.Comments.Insert(comment, "snippet").ExecuteAsync();
     }
 }
 

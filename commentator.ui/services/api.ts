@@ -25,3 +25,18 @@ export async function fetchVideoComments(accessToken: string, videoId: string) {
 
   return response.json();
 }
+
+export async function addCommentResponse(accessToken: string, commentId: string, response: string) {
+  const result = await fetch(`http://localhost:5138/api/youtube/comments/${commentId}/reply`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ response }),
+  });
+
+  if (!result.ok) {
+    throw new Error("Failed to add response");
+  }
+}

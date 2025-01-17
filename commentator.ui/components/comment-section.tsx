@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
-import { MessageSquare, Sparkles } from "lucide-react";
+import { MessageSquare, Sparkles, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { fetchVideoComments } from "@/services/api";
+import { fetchVideoComments, addCommentResponse } from "@/services/api";
 
 interface Comment {
   id: string;
@@ -17,9 +17,11 @@ interface Comment {
 
 export function CommentSection({ videoId, accessToken }: { videoId: string; accessToken: string }) {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeComment, setActiveComment] = useState<string | null>(null);
+  const [customResponse, setCustomResponse] = useState("");
+  const [isCustomMode, setIsCustomMode] = useState(false);
 
   useEffect(() => {
     const loadComments = async () => {
@@ -36,19 +38,29 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
     loadComments();
   }, [videoId, accessToken]);
 
-  if (loading) {
-    return <div className="text-center py-8">Loading comments...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
-
-  const handleSubmitComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implement comment submission
-    setNewComment("");
+  const handleRegenerateResponse = async (commentId: string) => {
+    // TODO: Implement AI response regeneration
+    console.log("Regenerating response for comment:", commentId);
   };
+
+  const handleSubmitResponse = async (commentId: string) => {
+    try {
+      const response = isCustomMode ? customResponse : "AI-generated response"; // Replace with actual AI response
+      await addCommentResponse(accessToken, commentId, response);
+
+      // Update the local comments state to show the new response
+      setComments(comments.map((comment) => (comment.id === commentId ? { ...comment, aiResponse: response } : comment)));
+
+      setActiveComment(null);
+      setCustomResponse("");
+    } catch (err) {
+      console.error("Failed to submit response:", err);
+      // Optionally show an error message to the user
+    }
+  };
+
+  if (loading) return <div className="text-center py-8">Loading comments...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -64,21 +76,6 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
         </a>
       </div>
 
-      {/* New Comment Form */}
-      <form onSubmit={handleSubmitComment} className="space-y-4">
-        <textarea
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          placeholder="Write a comment..."
-          className="w-full min-h-[100px] bg-secondary/50 rounded-lg p-4 text-white resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
-        />
-        <div className="flex justify-end">
-          <Button type="submit" disabled={!newComment.trim()}>
-            Post Comment
-          </Button>
-        </div>
-      </form>
-
       <div className="space-y-4">
         {comments.map((comment) => (
           <motion.div
@@ -90,15 +87,66 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
             <div className="flex items-start gap-4">
               <img src={comment.authorProfileImageUrl} alt={comment.author} className="w-10 h-10 rounded-full" />
               <div className="flex-1">
-                <p className="font-medium text-white">{comment.author}</p>
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-white">{comment.author}</p>
+                  {!comment.aiResponse && !activeComment && (
+                    <Button variant="ghost" size="sm" onClick={() => setActiveComment(comment.id)}>
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Answer
+                    </Button>
+                  )}
+                </div>
                 <p className="text-gray-400 mt-1">{comment.text}</p>
               </div>
             </div>
 
-            {comment.aiResponse && (
-              <div className="ml-14 pl-4 border-l-2 border-purple-500">
-                <p className="text-sm text-gray-400 mb-1">AI-Generated Response:</p>
-                <p className="text-white">{comment.aiResponse}</p>
+            {(comment.aiResponse || activeComment === comment.id) && (
+              <div className="ml-14 pl-4 border-l-2 border-purple-500 space-y-4">
+                {activeComment === comment.id ? (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" className={isCustomMode ? "opacity-50" : ""} onClick={() => setIsCustomMode(false)}>
+                        AI Response
+                      </Button>
+                      <Button variant="ghost" size="sm" className={!isCustomMode ? "opacity-50" : ""} onClick={() => setIsCustomMode(true)}>
+                        Custom Response
+                      </Button>
+                    </div>
+                    {isCustomMode ? (
+                      <textarea
+                        value={customResponse}
+                        onChange={(e) => setCustomResponse(e.target.value)}
+                        placeholder="Write your response..."
+                        className="w-full min-h-[100px] bg-secondary/30 rounded-lg p-4 text-white resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                    ) : (
+                      <div className="bg-secondary/30 rounded-lg p-4">
+                        <p className="text-white">AI-generated response will appear here...</p>
+                      </div>
+                    )}
+                    <div className="flex justify-end gap-2">
+                      {!isCustomMode && (
+                        <Button variant="outline" size="sm" onClick={() => handleRegenerateResponse(comment.id)}>
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Regenerate
+                        </Button>
+                      )}
+                      <Button size="sm" onClick={() => handleSubmitResponse(comment.id)}>
+                        Submit Response
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-sm text-gray-400 mb-1">AI-Generated Response:</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-white">{comment.aiResponse}</p>
+                      <Button variant="ghost" size="sm" onClick={() => handleRegenerateResponse(comment.id)}>
+                        <RefreshCw className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </motion.div>
