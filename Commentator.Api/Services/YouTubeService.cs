@@ -38,12 +38,30 @@ public class YouTubeService : IYouTubeService
             playlistRequest.MaxResults = 50;
 
             var playlistResponse = await playlistRequest.ExecuteAsync();
-            videos.AddRange(playlistResponse.Items.Select(item => new VideoDto
+
+            // Get video IDs for statistics request
+            var videoIds = playlistResponse.Items.Select(item => item.Snippet.ResourceId.VideoId).ToList();
+
+            // Get video statistics
+            var videosRequest = youtubeService.Videos.List("statistics");
+            videosRequest.Id = string.Join(",", videoIds);
+            var videosResponse = await videosRequest.ExecuteAsync();
+
+            videos.AddRange(playlistResponse.Items.Select(item =>
             {
-                Id = item.Snippet.ResourceId.VideoId,
-                Title = item.Snippet.Title,
-                Thumbnail = item.Snippet.Thumbnails.High.Url,
-                Views = "N/A" // You'd need another API call to get views
+                var videoStats = videosResponse.Items.FirstOrDefault(v => v.Id == item.Snippet.ResourceId.VideoId)?.Statistics;
+                return new VideoDto
+                {
+                    Id = item.Snippet.ResourceId.VideoId,
+                    Title = item.Snippet.Title,
+                    Thumbnail = item.Snippet.Thumbnails.High.Url,
+                    Statistics = new VideoStatistics
+                    {
+                        Views = videoStats?.ViewCount?.ToString() ?? "0",
+                        Likes = videoStats?.LikeCount?.ToString() ?? "0",
+                        CommentCount = videoStats?.CommentCount?.ToString() ?? "0"
+                    }
+                };
             }));
         }
 
@@ -56,5 +74,12 @@ public class VideoDto
     public string Id { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string Thumbnail { get; set; } = string.Empty;
-    public string Views { get; set; } = string.Empty;
+    public VideoStatistics Statistics { get; set; } = new();
+}
+
+public class VideoStatistics
+{
+    public string Views { get; set; } = "0";
+    public string Likes { get; set; } = "0";
+    public string CommentCount { get; set; } = "0";
 }

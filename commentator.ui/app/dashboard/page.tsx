@@ -9,14 +9,17 @@ import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import { fetchYouTubeVideos } from "@/services/api";
+import { CommentSection } from "@/components/comment-section";
+import Image from "next/image";
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [showVideos, setShowVideos] = useState(false);
-  const [videos, setVideos] = useState([]);
+  const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -43,6 +46,25 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+
+  // Mock data for testing
+  const mockComments = [
+    {
+      id: "1",
+      author: "John Doe",
+      text: "Great video! How did you achieve that effect at 2:35?",
+      likes: 15,
+      aiResponse:
+        "Thank you for your kind words! The effect at 2:35 was created using a combination of motion tracking and particle systems in After Effects. I'll be making a tutorial about it soon!",
+    },
+    {
+      id: "2",
+      author: "Jane Smith",
+      text: "Could you make a tutorial on this topic?",
+      likes: 8,
+    },
+    // Add more mock comments...
+  ];
 
   if (status === "loading") {
     return (
@@ -92,7 +114,26 @@ export default function DashboardPage() {
                   Back
                 </Button>
               </div>
-              {loading ? <div className="text-center py-8">Loading your videos...</div> : <VideoGrid videos={videos} />}
+              {loading ? (
+                <div className="text-center py-8">Loading your videos...</div>
+              ) : (
+                <>
+                  {selectedVideo ? (
+                    <div className="space-y-8">
+                      <Button variant="ghost" onClick={() => setSelectedVideo(null)} className="mb-4">
+                        ← Back to Videos
+                      </Button>
+                      <div className="aspect-video relative rounded-xl overflow-hidden">
+                        <Image src={selectedVideo.thumbnail} alt={selectedVideo.title} fill className="object-cover" />
+                      </div>
+                      <h2 className="text-2xl font-bold">{selectedVideo.title}</h2>
+                      <CommentSection videoId={selectedVideo.id} comments={mockComments} />
+                    </div>
+                  ) : (
+                    <VideoGrid videos={videos} onVideoClick={(video) => setSelectedVideo(video)} />
+                  )}
+                </>
+              )}
             </motion.div>
           )}
         </div>
