@@ -36,6 +36,7 @@ app.MapGet("Testing", (HttpContext context) =>
     return Results.Ok("Hi");
 });
 
+
 app.UseCors("AllowNextAppProd");
 app.UseHttpsRedirection();
 app.MapControllers();
