@@ -13,4 +13,10 @@
         <PackageReference Include="Google.Apis.Auth" Version="1.67.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
 </Project>
