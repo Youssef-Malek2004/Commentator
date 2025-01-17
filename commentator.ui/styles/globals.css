@@ -1,121 +1,173 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-:root {
-  --background: 0 0% 0%;
-  --foreground: 0 0% 100%;
-
-  --card: 0 0% 4%;
-  --card-foreground: 0 0% 100%;
-
-  --popover: 0 0% 4%;
-  --popover-foreground: 0 0% 100%;
-
-  --primary: 0 0% 100%;
-  --primary-foreground: 0 0% 0%;
-
-  --secondary: 0 0% 13%;
-  --secondary-foreground: 0 0% 100%;
-
-  --muted: 0 0% 13%;
-  --muted-foreground: 215 20.2% 65.1%;
-
-  --accent: 0 0% 13%;
-  --accent-foreground: 0 0% 100%;
-
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 100%;
-
-  --border: 0 0% 13%;
-  --input: 0 0% 13%;
-  --ring: 0 0% 83.1%;
-
-  --radius: 0.75rem;
-}
-
-* {
-  @apply border-border;
-}
 
 body {
-  @apply bg-background text-foreground antialiased;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Custom scrollbar for modern browsers */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-black/20;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-white/10 rounded-full;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-white/20;
-}
-
-/* Smooth scrolling for the whole page */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Better button hover states */
-button,
-.button {
-  @apply transition-all duration-200;
-}
-
-/* Gradient text utilities */
-.gradient-text {
-  @apply bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500;
-}
-
-/* Glass effect utility */
-.glass {
-  @apply bg-white/10 backdrop-blur-md border border-white/20;
-}
-
-/* Improved focus states */
-:focus-visible {
-  @apply outline-none ring-2 ring-white/20 ring-offset-2 ring-offset-black;
-}
-
-/* Animation utilities */
-.animate-in {
-  animation: animate-in 0.5s ease-out;
-}
-
-@keyframes animate-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
   }
-  to {
-    opacity: 1;
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@keyframes gradient {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(-1%, 1%) rotate(1deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
     transform: translateY(0);
   }
 }
 
-/* Better default link styles */
-a:not(.button) {
-  @apply text-white/80 hover:text-white transition-colors duration-200;
+@keyframes shimmer {
+  0% {
+    background-position: 200% 50%;
+  }
+  100% {
+    background-position: -200% 50%;
+  }
 }
 
-/* Input styles */
-input,
-textarea,
-select {
-  @apply bg-secondary border-border focus:ring-2 focus:ring-white/20 focus:border-transparent transition-all duration-200;
+@keyframes rainbow-text {
+  0% {
+    color: #ff1493;
+    transform: translateY(0);
+  }
+  25% {
+    color: #9400d3;
+    transform: translateY(-2px);
+  }
+  50% {
+    color: #9333ea;
+    transform: translateY(0);
+  }
+  75% {
+    color: #ff69b4;
+    transform: translateY(2px);
+  }
+  100% {
+    color: #ff1493;
+    transform: translateY(0);
+  }
 }
 
-/* Card hover effect */
-.card-hover {
-  @apply hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-shadow duration-200;
+@keyframes text-fade {
+  0% {
+    color: #9ca3af;
+  } /* gray-400 */
+  50% {
+    color: #1e3a8a;
+  } /* blue-900 */
+  100% {
+    color: #9ca3af;
+  }
+}
+
+.animate-gradient {
+  animation: gradient 15s ease infinite;
+}
+
+.animate-float {
+  animation: float 20s ease infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 8s linear infinite;
+}
+
+.animate-rainbow-text {
+  animation: rainbow-text 2s ease-in-out infinite;
+  display: inline-block;
+  margin-right: 2px;
+  font-size: 2.75rem;
+  line-height: 1.2;
+}
+
+.animate-text-fade {
+  animation: text-fade 3s ease-in-out infinite;
+  font-size: 3rem;
+  line-height: 1.2;
+}
+
+.rainbow-text-container {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0 1rem;
+  text-align: center;
 }

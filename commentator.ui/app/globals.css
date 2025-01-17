@@ -95,10 +95,52 @@ body {
   }
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: 200% 50%;
+  }
+  100% {
+    background-position: -200% 50%;
+  }
+}
+
+@keyframes rainbow-text {
+  0% {
+    color: #ff1493;
+    transform: translateY(0);
+  }
+  25% {
+    color: #9400d3;
+    transform: translateY(-2px);
+  }
+  50% {
+    color: #9333ea;
+    transform: translateY(0);
+  }
+  75% {
+    color: #ff69b4;
+    transform: translateY(2px);
+  }
+  100% {
+    color: #ff1493;
+    transform: translateY(0);
+  }
+}
+
 .animate-gradient {
   animation: gradient 15s ease infinite;
 }
 
 .animate-float {
   animation: float 20s ease infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 8s linear infinite;
+}
+
+.animate-rainbow-text {
+  animation: rainbow-text 2s ease-in-out infinite;
+  display: inline-block;
+  margin-right: 1px;
 }

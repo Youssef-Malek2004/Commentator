@@ -58,8 +58,18 @@ export default function LoginPage() {
         {/* Main Content */}
         <div className="space-y-12">
           <div className="space-y-4">
-            <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-              Elevate Your Social Media Presence
+            <h1 className="text-4xl font-bold tracking-tight rainbow-text-container">
+              {["Elevate", "Your", "Social", "\n", "Media", "Presence"].map((word, i) => (
+                <span
+                  key={i}
+                  className="inline-block animate-text-fade"
+                  style={{
+                    animationDelay: `${i * 0.2}s`,
+                  }}
+                >
+                  {word === "\n" ? <br /> : word + "\u00A0"}
+                </span>
+              ))}
             </h1>
             <p className="text-lg text-gray-400">Generate engaging, personalized responses across multiple platforms using advanced AI</p>
           </div>
