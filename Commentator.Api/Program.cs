@@ -25,6 +25,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.MapGet("testing", (HttpContext context) =>
+{
+    return Results.Ok("hi");
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
