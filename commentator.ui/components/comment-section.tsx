@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { MessageSquare, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { fetchVideoComments } from "@/services/api";
 
 interface Comment {
   id: string;
@@ -12,7 +14,34 @@ interface Comment {
   aiResponse?: string;
 }
 
-export function CommentSection({ videoId, comments }: { videoId: string; comments: Comment[] }) {
+export function CommentSection({ videoId, accessToken }: { videoId: string; accessToken: string }) {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadComments = async () => {
+      try {
+        const fetchedComments = await fetchVideoComments(accessToken, videoId);
+        setComments(fetchedComments);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load comments");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadComments();
+  }, [videoId, accessToken]);
+
+  if (loading) {
+    return <div className="text-center py-8">Loading comments...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex items-center justify-between">

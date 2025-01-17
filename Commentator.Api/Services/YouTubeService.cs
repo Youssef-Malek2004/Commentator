@@ -7,6 +7,7 @@ namespace Commentator.Api.Services;
 public interface IYouTubeService
 {
     Task<IEnumerable<VideoDto>> GetUserVideos(string accessToken);
+    Task<IEnumerable<CommentDto>> GetVideoComments(string accessToken, string videoId);
 }
 
 public class YouTubeService : IYouTubeService
@@ -67,6 +68,36 @@ public class YouTubeService : IYouTubeService
 
         return videos;
     }
+
+    public async Task<IEnumerable<CommentDto>> GetVideoComments(string accessToken, string videoId)
+    {
+        var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
+        {
+            HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
+        });
+
+        var commentsRequest = youtubeService.CommentThreads.List("snippet");
+        commentsRequest.VideoId = videoId;
+        commentsRequest.Order = CommentThreadsResource.ListRequest.OrderEnum.Time;
+        commentsRequest.MaxResults = 100;
+
+        var response = await commentsRequest.ExecuteAsync();
+
+        return response.Items.Select(item => new CommentDto
+        {
+            Id = item.Id,
+            Author = item.Snippet.TopLevelComment.Snippet.AuthorDisplayName,
+            Text = item.Snippet.TopLevelComment.Snippet.TextDisplay,
+            Likes = item.Snippet.TopLevelComment.Snippet.LikeCount ?? 0,
+            AiResponse = GenerateMockAiResponse(item.Snippet.TopLevelComment.Snippet.TextDisplay) // Temporary mock
+        });
+    }
+
+    private string? GenerateMockAiResponse(string comment)
+    {
+        // Randomly decide whether to add an AI response (simulating unanswered comments)
+        return Random.Shared.Next(2) == 0 ? null : $"Thank you for your comment! {comment.Split('.')[0]}. We appreciate your feedback!";
+    }
 }
 
 public class VideoDto
@@ -82,4 +113,13 @@ public class VideoStatistics
     public string Views { get; set; } = "0";
     public string Likes { get; set; } = "0";
     public string CommentCount { get; set; } = "0";
+}
+
+public class CommentDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string Author { get; set; } = string.Empty;
+    public string Text { get; set; } = string.Empty;
+    public long Likes { get; set; }
+    public string? AiResponse { get; set; }
 }

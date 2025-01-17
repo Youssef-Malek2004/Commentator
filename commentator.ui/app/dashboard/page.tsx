@@ -127,7 +127,7 @@ export default function DashboardPage() {
                         <Image src={selectedVideo.thumbnail} alt={selectedVideo.title} fill className="object-cover" />
                       </div>
                       <h2 className="text-2xl font-bold">{selectedVideo.title}</h2>
-                      <CommentSection videoId={selectedVideo.id} comments={mockComments} />
+                      <CommentSection videoId={selectedVideo.id} accessToken={session?.accessToken ?? ""} />
                     </div>
                   ) : (
                     <VideoGrid videos={videos} onVideoClick={(video) => setSelectedVideo(video)} />

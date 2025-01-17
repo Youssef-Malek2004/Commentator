@@ -32,4 +32,23 @@ public class YouTubeController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpGet("videos/{videoId}/comments")]
+    public async Task<IActionResult> GetVideoComments(string videoId, [FromHeader(Name = "Authorization")] string authorization)
+    {
+        if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
+            return Unauthorized();
+
+        var accessToken = authorization.Substring("Bearer ".Length);
+
+        try
+        {
+            var comments = await _youTubeService.GetVideoComments(accessToken, videoId);
+            return Ok(comments);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }
