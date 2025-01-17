@@ -1,23 +1,14 @@
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export async function fetchYouTubeVideos(accessToken: string) {
-  console.log("Calling API with token:", accessToken?.substring(0, 10) + "...");
-
   const response = await fetch(`${BACKEND_URL}/api/youtube/videos`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      Accept: "application/json",
     },
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    console.error("API Error:", {
-      status: response.status,
-      statusText: response.statusText,
-      body: text,
-    });
-    throw new Error(`Failed to fetch videos: ${text}`);
+    throw new Error("Failed to fetch videos");
   }
 
   return response.json();
