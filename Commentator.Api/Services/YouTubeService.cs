@@ -8,6 +8,7 @@ public interface IYouTubeService
 {
     Task<IEnumerable<VideoDto>> GetUserVideos(string accessToken);
     Task<IEnumerable<CommentDto>> GetVideoComments(string accessToken, string videoId);
+    Task AddComment(string accessToken, string videoId, string text);
 }
 
 public class YouTubeService : IYouTubeService
@@ -87,9 +88,10 @@ public class YouTubeService : IYouTubeService
         {
             Id = item.Id,
             Author = item.Snippet.TopLevelComment.Snippet.AuthorDisplayName,
+            AuthorProfileImageUrl = item.Snippet.TopLevelComment.Snippet.AuthorProfileImageUrl,
             Text = item.Snippet.TopLevelComment.Snippet.TextDisplay,
             Likes = item.Snippet.TopLevelComment.Snippet.LikeCount ?? 0,
-            AiResponse = GenerateMockAiResponse(item.Snippet.TopLevelComment.Snippet.TextDisplay) // Temporary mock
+            AiResponse = GenerateMockAiResponse(item.Snippet.TopLevelComment.Snippet.TextDisplay)
         });
     }
 
@@ -97,6 +99,31 @@ public class YouTubeService : IYouTubeService
     {
         // Randomly decide whether to add an AI response (simulating unanswered comments)
         return Random.Shared.Next(2) == 0 ? null : $"Thank you for your comment! {comment.Split('.')[0]}. We appreciate your feedback!";
+    }
+
+    public async Task AddComment(string accessToken, string videoId, string text)
+    {
+        var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
+        {
+            HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
+        });
+
+        var comment = new CommentThread
+        {
+            Snippet = new CommentThreadSnippet
+            {
+                VideoId = videoId,
+                TopLevelComment = new Comment
+                {
+                    Snippet = new CommentSnippet
+                    {
+                        TextOriginal = text
+                    }
+                }
+            }
+        };
+
+        await youtubeService.CommentThreads.Insert(comment, "snippet").ExecuteAsync();
     }
 }
 
@@ -119,6 +146,7 @@ public class CommentDto
 {
     public string Id { get; set; } = string.Empty;
     public string Author { get; set; } = string.Empty;
+    public string AuthorProfileImageUrl { get; set; } = string.Empty;
     public string Text { get; set; } = string.Empty;
     public long Likes { get; set; }
     public string? AiResponse { get; set; }

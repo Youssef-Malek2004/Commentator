@@ -51,4 +51,28 @@ public class YouTubeController : ControllerBase
             return BadRequest(ex.Message);
         }
     }
+
+    [HttpPost("videos/{videoId}/comments")]
+    public async Task<IActionResult> AddComment(string videoId, [FromHeader(Name = "Authorization")] string authorization, [FromBody] AddCommentRequest request)
+    {
+        if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
+            return Unauthorized();
+
+        var accessToken = authorization.Substring("Bearer ".Length);
+
+        try
+        {
+            await _youTubeService.AddComment(accessToken, videoId, request.Text);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    public class AddCommentRequest
+    {
+        public string Text { get; set; } = string.Empty;
+    }
 }
