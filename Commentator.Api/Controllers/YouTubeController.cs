@@ -74,25 +74,6 @@ public class YouTubeController : ControllerBase
         }
     }
 
-    [HttpPost("comments/{commentId}/like")]
-    public async Task<IActionResult> LikeComment(string commentId, [FromHeader(Name = "Authorization")] string authorization)
-    {
-        if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
-            return Unauthorized();
-
-        var accessToken = authorization.Substring("Bearer ".Length);
-
-        try
-        {
-            await _youTubeService.LikeComment(accessToken, commentId);
-            return Ok();
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
-    }
-
     [HttpPost("videos/{videoId}/bulk-answer")]
     public async Task<IActionResult> BulkAnswerComments(string videoId, [FromHeader(Name = "Authorization")] string authorization)
     {

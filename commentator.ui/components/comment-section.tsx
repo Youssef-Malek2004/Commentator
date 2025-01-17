@@ -2,9 +2,9 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./ui/button";
-import { MessageSquare, Sparkles, RefreshCw, ThumbsUp, Check, Loader2 } from "lucide-react";
+import { MessageSquare, Sparkles, RefreshCw, Check, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { fetchVideoComments, addCommentResponse, likeComment, bulkAnswerComments } from "@/services/api";
+import { fetchVideoComments, addCommentResponse, bulkAnswerComments } from "@/services/api";
 
 interface Comment {
   id: string;
@@ -22,7 +22,6 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
   const [activeComment, setActiveComment] = useState<string | null>(null);
   const [customResponse, setCustomResponse] = useState("");
   const [isCustomMode, setIsCustomMode] = useState(false);
-  const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
   const [respondingComments, setRespondingComments] = useState<Set<string>>(new Set());
   const [isBulkAnswering, setIsBulkAnswering] = useState(false);
 
@@ -44,15 +43,6 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
   const handleRegenerateResponse = async (commentId: string) => {
     // TODO: Implement AI response regeneration
     console.log("Regenerating response for comment:", commentId);
-  };
-
-  const handleLikeComment = async (commentId: string) => {
-    try {
-      await likeComment(accessToken, commentId);
-      setLikedComments(new Set([...likedComments, commentId]));
-    } catch (err) {
-      console.error("Failed to like comment:", err);
-    }
   };
 
   const handleBulkAnswer = async () => {
@@ -120,23 +110,12 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <p className="font-medium text-white">{comment.author}</p>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleLikeComment(comment.id)}
-                      disabled={likedComments.has(comment.id)}
-                      className={likedComments.has(comment.id) ? "text-purple-500" : ""}
-                    >
-                      <ThumbsUp className="w-4 h-4" />
+                  {!comment.aiResponse && !activeComment && (
+                    <Button variant="ghost" size="sm" onClick={() => setActiveComment(comment.id)}>
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Answer
                     </Button>
-                    {!comment.aiResponse && !activeComment && (
-                      <Button variant="ghost" size="sm" onClick={() => setActiveComment(comment.id)}>
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Answer
-                      </Button>
-                    )}
-                  </div>
+                  )}
                 </div>
                 <p className="text-gray-400 mt-1">{comment.text}</p>
               </div>
