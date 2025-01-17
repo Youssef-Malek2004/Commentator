@@ -1,7 +1,6 @@
 using Google.Apis.YouTube.v3;
 using Google.Apis.Services;
 using Google.Apis.YouTube.v3.Data;
-using Microsoft.Extensions.Configuration;
 
 namespace Commentator.Api.Services;
 
@@ -15,13 +14,6 @@ public interface IYouTubeService
 
 public class YouTubeService : IYouTubeService
 {
-    private readonly IConfiguration _configuration;
-
-    public YouTubeService(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
-
     public async Task<IEnumerable<VideoDto>> GetUserVideos(string accessToken)
     {
         var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
@@ -34,7 +26,7 @@ public class YouTubeService : IYouTubeService
         var channelsResponse = await channelsRequest.ExecuteAsync();
 
         var videos = new List<VideoDto>();
-        foreach (var channel in channelsResponse.Items)
+        /*foreach (var channel in channelsResponse.Items)
         {
             var uploadsListId = channel.ContentDetails.RelatedPlaylists.Uploads;
             var playlistRequest = youtubeService.PlaylistItems.List("snippet");
@@ -66,7 +58,7 @@ public class YouTubeService : IYouTubeService
                 };
             }));
         }
-
+*/
         return videos;
     }
 

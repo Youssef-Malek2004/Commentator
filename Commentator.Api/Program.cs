@@ -12,7 +12,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowNextApp",
         builder => builder
-            .WithOrigins("http://localhost:3002")
+            .WithOrigins("http://localhost:3001")
             .AllowAnyMethod()
             .AllowAnyHeader());
 

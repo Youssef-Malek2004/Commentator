@@ -5,15 +5,8 @@ namespace Commentator.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class YouTubeController : ControllerBase
+public class YouTubeController(IYouTubeService youTubeService) : ControllerBase
 {
-    private readonly IYouTubeService _youTubeService;
-
-    public YouTubeController(IYouTubeService youTubeService)
-    {
-        _youTubeService = youTubeService;
-    }
-
     [HttpGet("videos")]
     public async Task<IActionResult> GetVideos([FromHeader(Name = "Authorization")] string authorization)
     {
@@ -24,7 +17,7 @@ public class YouTubeController : ControllerBase
 
         try
         {
-            var videos = await _youTubeService.GetUserVideos(accessToken);
+            var videos = await youTubeService.GetUserVideos(accessToken);
             return Ok(videos);
         }
         catch (Exception ex)
@@ -43,7 +36,7 @@ public class YouTubeController : ControllerBase
 
         try
         {
-            var comments = await _youTubeService.GetVideoComments(accessToken, videoId);
+            var comments = await youTubeService.GetVideoComments(accessToken, videoId);
             return Ok(comments);
         }
         catch (Exception ex)
@@ -65,7 +58,7 @@ public class YouTubeController : ControllerBase
 
         try
         {
-            await _youTubeService.AddCommentResponse(accessToken, commentId, request.Response);
+            await youTubeService.AddCommentResponse(accessToken, commentId, request.Response);
             return Ok();
         }
         catch (Exception ex)
@@ -84,7 +77,7 @@ public class YouTubeController : ControllerBase
 
         try
         {
-            await _youTubeService.BulkAnswerComments(accessToken, videoId);
+            await youTubeService.BulkAnswerComments(accessToken, videoId);
             return Ok();
         }
         catch (Exception ex)
