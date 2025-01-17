@@ -79,22 +79,24 @@ public class YouTubeService : IYouTubeService
             HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
         });
 
-        var commentsRequest = youtubeService.CommentThreads.List("snippet");
+        var commentsRequest = youtubeService.CommentThreads.List("snippet,replies");
         commentsRequest.VideoId = videoId;
         commentsRequest.Order = CommentThreadsResource.ListRequest.OrderEnum.Time;
         commentsRequest.MaxResults = 100;
 
         var response = await commentsRequest.ExecuteAsync();
 
-        return response.Items.Select(item => new CommentDto
-        {
-            Id = item.Id,
-            Author = item.Snippet.TopLevelComment.Snippet.AuthorDisplayName,
-            AuthorProfileImageUrl = item.Snippet.TopLevelComment.Snippet.AuthorProfileImageUrl,
-            Text = item.Snippet.TopLevelComment.Snippet.TextDisplay,
-            Likes = item.Snippet.TopLevelComment.Snippet.LikeCount ?? 0,
-            AiResponse = GenerateMockAiResponse(item.Snippet.TopLevelComment.Snippet.TextDisplay)
-        });
+        return response.Items
+            .Where(item => !item.Replies?.Comments.Any() ?? true)
+            .Select(item => new CommentDto
+            {
+                Id = item.Snippet.TopLevelComment.Id,
+                Author = item.Snippet.TopLevelComment.Snippet.AuthorDisplayName,
+                AuthorProfileImageUrl = item.Snippet.TopLevelComment.Snippet.AuthorProfileImageUrl,
+                Text = item.Snippet.TopLevelComment.Snippet.TextDisplay,
+                Likes = item.Snippet.TopLevelComment.Snippet.LikeCount ?? 0,
+                AiResponse = null
+            });
     }
 
     private string? GenerateMockAiResponse(string comment)
