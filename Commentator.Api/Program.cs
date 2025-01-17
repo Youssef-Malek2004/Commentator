@@ -10,15 +10,9 @@ builder.Services.AddScoped<IYouTubeService, YouTubeService>();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowNextApp",
+    options.AddPolicy("AllowAll",
         builder => builder
-            .WithOrigins("http://localhost:3002")
-            .AllowAnyMethod()
-            .AllowAnyHeader());
-    
-    options.AddPolicy("AllowNextAppProd",
-        builder => builder
-            .WithOrigins("https://commentatorai.vercel.app")
+            .AllowAnyOrigin()
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
@@ -35,7 +29,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseCors("AllowNextAppProd");
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.MapControllers();
 
