@@ -1,9 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Youtube } from "lucide-react";
 import Image from "next/image";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -13,7 +12,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (session) {
-      router.push("/dashboard"); // Redirect to dashboard when logged in
+      router.push("/dashboard");
     }
   }, [session, router]);
 
@@ -29,23 +28,40 @@ export default function LoginPage() {
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8 text-center">
         {/* Logo and App Name */}
-        <div className="space-y-2">
+        <div className="space-y-4">
           <div className="flex items-center justify-center gap-2 text-4xl font-bold">
-            <Youtube className="w-10 h-10 text-red-500" />
+            <Image src="/favicon.ico" alt="Commentator" width={40} height={40} />
             <span>Commentator</span>
           </div>
-          <p className="text-gray-400">AI-Powered YouTube Engagement</p>
+          <p className="text-gray-400">AI-Powered Social Media Engagement</p>
+
+          {/* Platform Icons */}
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <div className="p-2 rounded-full bg-red-500/10">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-red-500" fill="currentColor">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+              </svg>
+            </div>
+            <div className="p-2 rounded-full bg-white/10">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </div>
+            <div className="p-2 rounded-full bg-white/10">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-6 h-6 text-white" fill="currentColor">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+              </svg>
+            </div>
+          </div>
         </div>
 
         {/* Main Content */}
         <div className="space-y-12">
           <div className="space-y-4">
             <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-500 bg-clip-text text-transparent">
-              Elevate Your YouTube Presence
+              Elevate Your Social Media Presence
             </h1>
-            <p className="text-lg text-gray-400">
-              Generate engaging, personalized comments for your favorite YouTube videos using advanced AI
-            </p>
+            <p className="text-lg text-gray-400">Generate engaging, personalized responses across multiple platforms using advanced AI</p>
           </div>
 
           {/* Login Button */}

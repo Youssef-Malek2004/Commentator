@@ -11,6 +11,19 @@ import { motion } from "framer-motion";
 import { fetchYouTubeVideos } from "@/services/api";
 import { CommentSection } from "@/components/comment-section";
 import Image from "next/image";
+import { VideoPreview } from "@/components/video-preview";
+import { Footer } from "@/components/footer";
+
+interface Video {
+  id: string;
+  title: string;
+  thumbnail: string;
+  statistics: {
+    views: string;
+    likes: string;
+    commentCount: string;
+  };
+}
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
@@ -20,6 +33,13 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [showThumbnail, setShowThumbnail] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("showThumbnail");
+      return saved !== null ? JSON.parse(saved) : true;
+    }
+    return true;
+  });
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -47,25 +67,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Mock data for testing
-  const mockComments = [
-    {
-      id: "1",
-      author: "John Doe",
-      text: "Great video! How did you achieve that effect at 2:35?",
-      likes: 15,
-      aiResponse:
-        "Thank you for your kind words! The effect at 2:35 was created using a combination of motion tracking and particle systems in After Effects. I'll be making a tutorial about it soon!",
-    },
-    {
-      id: "2",
-      author: "Jane Smith",
-      text: "Could you make a tutorial on this topic?",
-      likes: 8,
-    },
-    // Add more mock comments...
-  ];
-
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -75,23 +76,26 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Animated background */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-background to-red-500/10" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-500/10 via-transparent to-transparent blur-xl" />
       </div>
 
-      <div className="p-8">
-        {/* Header with logout */}
+      <div className="p-8 flex-1">
+        {/* Header with logout and branding */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-7xl mx-auto flex justify-between items-center mb-12"
         >
-          <div>
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">Dashboard</h1>
-            <p className="text-gray-400">Welcome back, {session?.user?.email}</p>
+          <div className="flex items-center gap-3">
+            <Image src="/favicon.ico" alt="Commentator" width={32} height={32} />
+            <div>
+              <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">Commentator</h1>
+              <p className="text-gray-400">Welcome back, {session?.user?.email}</p>
+            </div>
           </div>
           <Button variant="ghost" onClick={handleLogout} className="flex items-center gap-2 hover:text-red-500">
             <LogOut size={16} />
@@ -123,9 +127,12 @@ export default function DashboardPage() {
                       <Button variant="ghost" onClick={() => setSelectedVideo(null)} className="mb-4">
                         ← Back to Videos
                       </Button>
-                      <div className="aspect-video relative rounded-xl overflow-hidden">
-                        <Image src={selectedVideo.thumbnail} alt={selectedVideo.title} fill className="object-cover" />
-                      </div>
+                      <VideoPreview
+                        thumbnail={selectedVideo.thumbnail}
+                        title={selectedVideo.title}
+                        showThumbnail={showThumbnail}
+                        setShowThumbnail={setShowThumbnail}
+                      />
                       <h2 className="text-2xl font-bold">{selectedVideo.title}</h2>
                       <CommentSection videoId={selectedVideo.id} accessToken={session?.accessToken ?? ""} />
                     </div>
@@ -138,6 +145,8 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }
