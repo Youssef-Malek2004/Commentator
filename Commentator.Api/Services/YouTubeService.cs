@@ -22,26 +22,7 @@ public class YouTubeService : IYouTubeService
     {
         var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
         {
-            ApiKey = null,
-            ApplicationName = "Commentator",
-            HttpClientInitializer = new Google.Apis.Auth.OAuth2.UserCredential(
-                new Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow(
-                    new Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.Initializer
-                    {
-                        ClientSecrets = new Google.Apis.Auth.OAuth2.ClientSecrets
-                        {
-                            ClientId = _configuration["Google:ClientId"],
-                            ClientSecret = _configuration["Google:ClientSecret"]
-                        },
-                        Scopes = new[] {
-                            "https://www.googleapis.com/auth/youtube.readonly",
-                            "https://www.googleapis.com/auth/youtube.force-ssl"
-                        }
-                    }
-                ),
-                "user",
-                new Google.Apis.Auth.OAuth2.Responses.TokenResponse { AccessToken = accessToken }
-            )
+            HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
         });
 
         var channelsRequest = youtubeService.Channels.List("contentDetails");
