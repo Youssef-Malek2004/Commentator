@@ -1,5 +1,7 @@
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 export async function fetchYouTubeVideos(accessToken: string) {
-  const response = await fetch("http://localhost:5138/api/youtube/videos", {
+  const response = await fetch(`${BACKEND_URL}/api/youtube/videos`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -13,7 +15,7 @@ export async function fetchYouTubeVideos(accessToken: string) {
 }
 
 export async function fetchVideoComments(accessToken: string, videoId: string) {
-  const response = await fetch(`http://localhost:5138/api/youtube/videos/${videoId}/comments`, {
+  const response = await fetch(`${BACKEND_URL}/api/youtube/videos/${videoId}/comments`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
@@ -27,7 +29,7 @@ export async function fetchVideoComments(accessToken: string, videoId: string) {
 }
 
 export async function addCommentResponse(accessToken: string, commentId: string, response: string) {
-  const result = await fetch(`http://localhost:5138/api/youtube/comments/${commentId}/reply`, {
+  const result = await fetch(`${BACKEND_URL}/api/youtube/comments/${commentId}/reply`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -42,7 +44,7 @@ export async function addCommentResponse(accessToken: string, commentId: string,
 }
 
 export async function bulkAnswerComments(accessToken: string, videoId: string) {
-  const result = await fetch(`http://localhost:5138/api/youtube/videos/${videoId}/bulk-answer`, {
+  const result = await fetch(`${BACKEND_URL}/api/youtube/videos/${videoId}/bulk-answer`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -52,4 +54,33 @@ export async function bulkAnswerComments(accessToken: string, videoId: string) {
   if (!result.ok) {
     throw new Error("Failed to bulk answer comments");
   }
+}
+
+export async function fetchComments(videoId: string, accessToken: string) {
+  const response = await fetch(`${BACKEND_URL}/api/youtube/comments/${videoId}`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch comments");
+  }
+
+  return response.json();
+}
+
+export async function generateResponse(commentId: string, accessToken: string) {
+  const response = await fetch(`${BACKEND_URL}/api/youtube/generate/${commentId}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to generate response");
+  }
+
+  return response.json();
 }

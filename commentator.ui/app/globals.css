@@ -33,6 +33,8 @@ body {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+    --footer-bg: 0 0% 96.1%;
+    --brand-color: 30 35% 45%;
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -59,6 +61,8 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --footer-bg: 0 0% 3.9%;
+    --brand-color: 0 0% 100%;
   }
 }
 
@@ -143,4 +147,10 @@ body {
   animation: rainbow-text 2s ease-in-out infinite;
   display: inline-block;
   margin-right: 1px;
+}
+
+.brand-text {
+  @apply bg-gradient-to-r bg-clip-text text-transparent;
+  @apply from-blue-400 to-blue-600;
+  @apply dark:from-white dark:to-blue-400;
 }

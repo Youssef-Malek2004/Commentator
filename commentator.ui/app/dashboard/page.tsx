@@ -6,13 +6,13 @@ import { VideoGrid } from "@/components/video-grid";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import { fetchYouTubeVideos } from "@/services/api";
 import { CommentSection } from "@/components/comment-section";
 import Image from "next/image";
 import { VideoPreview } from "@/components/video-preview";
 import { Footer } from "@/components/footer";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface Video {
   id: string;
@@ -46,10 +46,6 @@ export default function DashboardPage() {
       router.push("/");
     }
   }, [status, router]);
-
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: "/" });
-  };
 
   const handleFetchVideos = async () => {
     if (!session?.accessToken) return;
@@ -93,14 +89,16 @@ export default function DashboardPage() {
           <div className="flex items-center gap-3">
             <Image src="/favicon.ico" alt="Commentator" width={32} height={32} />
             <div>
-              <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">Commentator</h1>
+              <h1 className="brand-text text-3xl font-bold bg-clip-text text-transparent">Commentator</h1>
               <p className="text-gray-400">Welcome back, {session?.user?.email}</p>
             </div>
           </div>
-          <Button variant="ghost" onClick={handleLogout} className="flex items-center gap-2 hover:text-red-500">
-            <LogOut size={16} />
-            Logout
-          </Button>
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <Button variant="outline" onClick={() => signOut()} className="text-sm">
+              Sign Out
+            </Button>
+          </div>
         </motion.div>
 
         {/* Main content */}

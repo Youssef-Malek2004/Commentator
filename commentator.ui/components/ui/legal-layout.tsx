@@ -1,17 +1,19 @@
 import { Footer } from "@/components/footer";
 import Link from "next/link";
 import Image from "next/image";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function LegalLayout({ children, title }: { children: React.ReactNode; title: string }) {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b border-white/10">
-        <div className="max-w-4xl mx-auto px-6 py-4">
+      <header className="border-b border-border">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center gap-2">
             <Image src="/favicon.ico" alt="Commentator" width={32} height={32} />
             <span className="font-bold text-xl">Commentator.AI</span>
           </Link>
+          <ThemeToggle />
         </div>
       </header>
 

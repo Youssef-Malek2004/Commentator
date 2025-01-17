@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/10 mt-auto py-6">
+    <footer className="py-6 bg-[hsl(var(--footer-bg))] border-t border-border">
       <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-2">
           <Image src="/favicon.ico" alt="Commentator" width={24} height={24} />
