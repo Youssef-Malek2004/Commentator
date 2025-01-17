@@ -20,17 +20,16 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
+          scope: "https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/youtube",
           prompt: "consent",
           access_type: "offline",
           response_type: "code",
-          scope: "openid email profile https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/youtube.force-ssl",
         },
       },
     }),
   ],
   callbacks: {
     async jwt({ token, account }) {
-      // Initial sign in
       if (account) {
         token.accessToken = account.access_token;
       }
@@ -41,5 +40,4 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  debug: true, // Add this to see what's happening
 };

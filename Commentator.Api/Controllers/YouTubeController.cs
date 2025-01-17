@@ -15,15 +15,17 @@ public class YouTubeController : ControllerBase
     }
 
     [HttpGet("videos")]
-    public async Task<IActionResult> GetVideos([FromHeader(Name = "Authorization")] string authorization)
+    public async Task<ActionResult<IEnumerable<VideoDto>>> GetVideos()
     {
-        if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
-            return Unauthorized();
-
-        var accessToken = authorization.Substring("Bearer ".Length);
-
         try
         {
+            var authHeader = Request.Headers["Authorization"].ToString();
+            if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+            {
+                return BadRequest("Missing or invalid authorization header");
+            }
+
+            var accessToken = authHeader.Substring("Bearer ".Length);
             var videos = await _youTubeService.GetUserVideos(accessToken);
             return Ok(videos);
         }
