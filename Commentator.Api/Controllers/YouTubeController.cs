@@ -5,7 +5,7 @@ namespace Commentator.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class YouTubeController(IYouTubeService youTubeService) : ControllerBase
+public class YouTubeController(IYouTubeService youTubeService, ILogger<YouTubeController> logger) : ControllerBase
 {
     [HttpGet("videos")]
     public async Task<IActionResult> GetVideos([FromHeader(Name = "Authorization")] string authorization)
@@ -22,6 +22,12 @@ public class YouTubeController(IYouTubeService youTubeService) : ControllerBase
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex.Message);
+            Console.WriteLine(ex.InnerException?.ToString());
+            Console.WriteLine(ex.StackTrace);
+            logger.LogError(ex.Message);
+            logger.LogError(ex.InnerException?.ToString());
+            logger.LogError(ex.StackTrace);
             return BadRequest(ex.Message + "BABA");
         }
     }

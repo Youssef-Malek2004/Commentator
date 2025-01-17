@@ -18,7 +18,7 @@ public class YouTubeService : IYouTubeService
     {
         var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
         {
-            HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
+            HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken("ya29.a0ARW5m75NQq2EFQCaRXrFGU74WIkaepHQSTJfiHDxYF7fdrOD-S7_3vMLRuzZxvf5L67yoXfHUAkqXzg7atkcZzHgwrptF-jbipmkTFLf1wSQ7c33o4IVwR761rLIO38-sT97TPfNepG_Qj9ssVFsrRc5m8DTXDNST8vRvWscaCgYKAdsSARISFQHGX2MiTp3dbsFxADCRofXmt-33yQ0175")
         });
 
         var channelsRequest = youtubeService.Channels.List("contentDetails");

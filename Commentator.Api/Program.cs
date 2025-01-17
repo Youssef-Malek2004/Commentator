@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
+builder.Services.AddLogging();
 builder.Services.AddScoped<IYouTubeService, YouTubeService>();
 
 // Add CORS
