@@ -22,14 +22,11 @@ public class YouTubeController(IYouTubeService youTubeService, ILogger<YouTubeCo
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
-            Console.WriteLine(ex.InnerException?.ToString());
-            Console.WriteLine(ex.StackTrace);
-            logger.LogError(ex.Message);
-            logger.LogError(ex.InnerException?.ToString());
-            logger.LogError(ex.StackTrace);
-            throw;
-            return BadRequest(ex.Message + "BABA");
+            System.Diagnostics.Trace.TraceError(ex.Message);
+            System.Diagnostics.Trace.TraceError(ex.InnerException?.ToString());
+            System.Diagnostics.Trace.TraceError(ex.StackTrace);
+
+            return BadRequest(ex.Message + "BABA" + ex.InnerException?.ToString() + ex.StackTrace);
         }
     }
 
