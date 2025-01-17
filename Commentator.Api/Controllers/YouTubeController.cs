@@ -29,7 +29,7 @@ public class YouTubeController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(ex.Message + "Here is the auth header: " + authorization);
         }
     }
 
