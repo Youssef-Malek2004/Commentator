@@ -29,7 +29,7 @@ public class YouTubeService : IYouTubeService
             HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
         });
 
-        var channelsRequest = youtubeService.Channels.List("contentDetails");
+        var channelsRequest = youtubeService.Channels.List("contentDetails,snippet");
         channelsRequest.Mine = true;
         var channelsResponse = await channelsRequest.ExecuteAsync();
 
@@ -37,15 +37,15 @@ public class YouTubeService : IYouTubeService
         foreach (var channel in channelsResponse.Items)
         {
             var uploadsListId = channel.ContentDetails.RelatedPlaylists.Uploads;
-            var playlistRequest = youtubeService.PlaylistItems.List("snippet");
+            var playlistRequest = youtubeService.PlaylistItems.List("snippet,contentDetails");
             playlistRequest.PlaylistId = uploadsListId;
             playlistRequest.MaxResults = 50;
 
             var playlistResponse = await playlistRequest.ExecuteAsync();
-            
+
             var videoIds = playlistResponse.Items.Select(item => item.Snippet.ResourceId.VideoId).ToList();
-            
-            var videosRequest = youtubeService.Videos.List("statistics");
+
+            var videosRequest = youtubeService.Videos.List("statistics,snippet");
             videosRequest.Id = string.Join(",", videoIds);
             var videosResponse = await videosRequest.ExecuteAsync();
 
