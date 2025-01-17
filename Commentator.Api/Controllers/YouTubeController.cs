@@ -22,7 +22,7 @@ public class YouTubeController(IYouTubeService youTubeService) : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message + "Here is the auth header: " + authorization);
+            return BadRequest(ex.Message + "BABA");
         }
     }
 
