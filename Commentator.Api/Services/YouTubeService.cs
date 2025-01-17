@@ -42,11 +42,9 @@ public class YouTubeService : IYouTubeService
             playlistRequest.MaxResults = 50;
 
             var playlistResponse = await playlistRequest.ExecuteAsync();
-
-            // Get video IDs for statistics request
+            
             var videoIds = playlistResponse.Items.Select(item => item.Snippet.ResourceId.VideoId).ToList();
-
-            // Get video statistics
+            
             var videosRequest = youtubeService.Videos.List("statistics");
             videosRequest.Id = string.Join(",", videoIds);
             var videosResponse = await videosRequest.ExecuteAsync();

@@ -15,6 +15,12 @@ builder.Services.AddCors(options =>
             .WithOrigins("http://localhost:3002")
             .AllowAnyMethod()
             .AllowAnyHeader());
+    
+    options.AddPolicy("AllowNextAppProd",
+        builder => builder
+            .WithOrigins("https://commentatorai.vercel.app")
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 });
 
 var app = builder.Build();
@@ -24,7 +30,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseCors("AllowNextApp");
+app.UseCors("AllowNextAppProd");
 app.UseHttpsRedirection();
 app.MapControllers();
 
