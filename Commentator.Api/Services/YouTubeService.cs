@@ -10,7 +10,6 @@ public interface IYouTubeService
     Task<IEnumerable<VideoDto>> GetUserVideos(string accessToken);
     Task<IEnumerable<CommentDto>> GetVideoComments(string accessToken, string videoId);
     Task AddCommentResponse(string accessToken, string commentId, string response);
-    Task LikeComment(string accessToken, string commentId);
     Task BulkAnswerComments(string accessToken, string videoId);
 }
 
@@ -121,16 +120,6 @@ public class YouTubeService : IYouTubeService
         };
 
         await youtubeService.Comments.Insert(comment, "snippet").ExecuteAsync();
-    }
-
-    public async Task LikeComment(string accessToken, string commentId)
-    {
-        var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
-        {
-            HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
-        });
-
-        await youtubeService.Comments.Rate(commentId, CommentsResource.RateRequest.RatingEnum.Like).ExecuteAsync();
     }
 
     public async Task BulkAnswerComments(string accessToken, string videoId)
