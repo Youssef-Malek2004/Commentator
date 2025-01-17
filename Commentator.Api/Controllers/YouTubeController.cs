@@ -28,6 +28,7 @@ public class YouTubeController(IYouTubeService youTubeService, ILogger<YouTubeCo
             logger.LogError(ex.Message);
             logger.LogError(ex.InnerException?.ToString());
             logger.LogError(ex.StackTrace);
+            throw;
             return BadRequest(ex.Message + "BABA");
         }
     }
