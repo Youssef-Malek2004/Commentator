@@ -15,10 +15,10 @@ public class UiTests
     public void Setup()
     {
         var options = new ChromeOptions();
-        
+
         // options.AddArgument("--headless");
         options.AddArgument("--start-maximized");
-        
+
         _driver = new ChromeDriver(options);
         _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
     }

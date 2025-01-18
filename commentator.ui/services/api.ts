@@ -84,3 +84,17 @@ export async function generateResponse(commentId: string, accessToken: string) {
 
   return response.json();
 }
+
+export async function fetchYouTubeShorts(accessToken: string) {
+  const response = await fetch(`${BACKEND_URL}/api/youtube/shorts`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch shorts");
+  }
+
+  return response.json();
+}

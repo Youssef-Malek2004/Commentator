@@ -17,9 +17,22 @@ public class YouTubeServiceTests
     public Task GetUserVideos_WithInvalidToken_ThrowsException()
     {
         var invalidToken = "invalid_token";
-        
+
         var exception = Assert.ThrowsAsync<Google.GoogleApiException>(
             async () => await _youtubeService.GetUserVideos(invalidToken)
+        );
+
+        Assert.That(exception?.Message, Does.Contain("Unauthorized"));
+        return Task.CompletedTask;
+    }
+
+    [Test]
+    public Task GetUserShorts_WithInvalidToken_ThrowsException()
+    {
+        var invalidToken = "invalid_token";
+
+        var exception = Assert.ThrowsAsync<Google.GoogleApiException>(
+            async () => await _youtubeService.GetUserShorts(invalidToken)
         );
 
         Assert.That(exception?.Message, Does.Contain("Unauthorized"));

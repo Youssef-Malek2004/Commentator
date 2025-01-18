@@ -7,6 +7,7 @@ namespace Commentator.Api.Services;
 public interface IYouTubeService
 {
     Task<IEnumerable<VideoDto>> GetUserVideos(string accessToken);
+    Task<IEnumerable<VideoDto>> GetUserShorts(string accessToken);
     Task<IEnumerable<CommentDto>> GetVideoComments(string accessToken, string videoId);
     Task AddCommentResponse(string accessToken, string commentId, string response);
     Task BulkAnswerComments(string accessToken, string videoId);
@@ -28,7 +29,7 @@ public class YouTubeService : IYouTubeService
         var channelsResponse = await channelsRequest.ExecuteAsync();
 
         var videos = new List<VideoDto>();
-        
+
         foreach (var channel in channelsResponse.Items)
         {
             var uploadsListId = channel.ContentDetails.RelatedPlaylists.Uploads;
@@ -63,6 +64,63 @@ public class YouTubeService : IYouTubeService
         }
 
         return videos;
+    }
+
+    public async Task<IEnumerable<VideoDto>> GetUserShorts(string accessToken)
+    {
+        var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
+        {
+            HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
+        });
+
+        var channelsRequest = youtubeService.Channels.List("contentDetails");
+        channelsRequest.Mine = true;
+        var channelsResponse = await channelsRequest.ExecuteAsync();
+
+        var shorts = new List<VideoDto>();
+
+        foreach (var channel in channelsResponse.Items)
+        {
+            var uploadsListId = channel.ContentDetails.RelatedPlaylists.Uploads;
+            var playlistRequest = youtubeService.PlaylistItems.List("snippet");
+            playlistRequest.PlaylistId = uploadsListId;
+            playlistRequest.MaxResults = 50;
+
+            var playlistResponse = await playlistRequest.ExecuteAsync();
+
+            // Filter for shorts (typically vertical videos with #shorts in title or description)
+            var shortsItems = playlistResponse.Items.Where(item =>
+                item.Snippet.Title.Contains("#shorts", StringComparison.OrdinalIgnoreCase) ||
+                (item.Snippet.Description?.Contains("#shorts", StringComparison.OrdinalIgnoreCase) ?? false));
+
+            var videoIds = shortsItems.Select(item => item.Snippet.ResourceId.VideoId).ToList();
+
+            if (!videoIds.Any()) continue;
+
+            var videosRequest = youtubeService.Videos.List("statistics,contentDetails");
+            videosRequest.Id = string.Join(",", videoIds);
+            var videosResponse = await videosRequest.ExecuteAsync();
+
+            shorts.AddRange(shortsItems.Select(item =>
+            {
+                var videoStats = videosResponse.Items.FirstOrDefault(v => v.Id == item.Snippet.ResourceId.VideoId)?.Statistics;
+                return new VideoDto
+                {
+                    Id = item.Snippet.ResourceId.VideoId,
+                    Title = item.Snippet.Title,
+                    Thumbnail = item.Snippet.Thumbnails.High.Url,
+                    IsShort = true,
+                    Statistics = new VideoStatistics
+                    {
+                        Views = videoStats?.ViewCount?.ToString() ?? "0",
+                        Likes = videoStats?.LikeCount?.ToString() ?? "0",
+                        CommentCount = videoStats?.CommentCount?.ToString() ?? "0"
+                    }
+                };
+            }));
+        }
+
+        return shorts;
     }
 
     public async Task<IEnumerable<CommentDto>> GetVideoComments(string accessToken, string videoId)
@@ -136,6 +194,7 @@ public class VideoDto
     public string Id { get; set; } = string.Empty;
     public string Title { get; set; } = string.Empty;
     public string Thumbnail { get; set; } = string.Empty;
+    public bool IsShort { get; set; }
     public VideoStatistics Statistics { get; set; } = new();
 }
 

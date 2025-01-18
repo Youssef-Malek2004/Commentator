@@ -90,6 +90,25 @@ public class YouTubeController(IYouTubeService youTubeService, ILogger<YouTubeCo
         }
     }
 
+    [HttpGet("shorts")]
+    public async Task<IActionResult> GetShorts([FromHeader(Name = "Authorization")] string authorization)
+    {
+        if (string.IsNullOrEmpty(authorization) || !authorization.StartsWith("Bearer "))
+            return Unauthorized();
+
+        var accessToken = authorization.Substring("Bearer ".Length);
+
+        try
+        {
+            var shorts = await youTubeService.GetUserShorts(accessToken);
+            return Ok(shorts);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     public class AddResponseRequest
     {
         public string Response { get; set; } = string.Empty;
