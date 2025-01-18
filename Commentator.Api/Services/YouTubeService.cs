@@ -16,55 +16,60 @@ public interface IYouTubeService
 public class YouTubeService : IYouTubeService
 {
     public async Task<IEnumerable<VideoDto>> GetUserVideos(string accessToken)
+{
+    var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
     {
-        var youtubeService = new Google.Apis.YouTube.v3.YouTubeService(new BaseClientService.Initializer
+        HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
+    });
+
+    var channelsRequest = youtubeService.Channels.List("contentDetails");
+    channelsRequest.Mine = true;
+    var channelsResponse = await channelsRequest.ExecuteAsync();
+
+    var videos = new List<VideoDto>();
+
+    foreach (var channel in channelsResponse.Items)
+    {
+        var uploadsListId = channel.ContentDetails.RelatedPlaylists.Uploads;
+        var playlistRequest = youtubeService.PlaylistItems.List("snippet");
+        playlistRequest.PlaylistId = uploadsListId;
+        playlistRequest.MaxResults = 50;
+
+        var playlistResponse = await playlistRequest.ExecuteAsync();
+        
+        var regularVideos = playlistResponse.Items.Where(item =>
+            !(item.Snippet.Title.Contains("#shorts", StringComparison.OrdinalIgnoreCase) ||
+              (item.Snippet.Description?.Contains("#shorts", StringComparison.OrdinalIgnoreCase) ?? false)));
+
+        var videoIds = regularVideos.Select(item => item.Snippet.ResourceId.VideoId).ToList();
+
+        if (!videoIds.Any()) continue;
+
+        var videosRequest = youtubeService.Videos.List("statistics,contentDetails");
+        videosRequest.Id = string.Join(",", videoIds);
+        var videosResponse = await videosRequest.ExecuteAsync();
+
+        videos.AddRange(regularVideos.Select(item =>
         {
-            HttpClientInitializer = Google.Apis.Auth.OAuth2.GoogleCredential.FromAccessToken(accessToken)
-        });
-
-        Console.Out.WriteLine(accessToken);
-
-        var channelsRequest = youtubeService.Channels.List("contentDetails");
-        channelsRequest.Mine = true;
-        var channelsResponse = await channelsRequest.ExecuteAsync();
-
-        var videos = new List<VideoDto>();
-
-        foreach (var channel in channelsResponse.Items)
-        {
-            var uploadsListId = channel.ContentDetails.RelatedPlaylists.Uploads;
-            var playlistRequest = youtubeService.PlaylistItems.List("snippet");
-            playlistRequest.PlaylistId = uploadsListId;
-            playlistRequest.MaxResults = 50;
-
-            var playlistResponse = await playlistRequest.ExecuteAsync();
-
-            var videoIds = playlistResponse.Items.Select(item => item.Snippet.ResourceId.VideoId).ToList();
-
-            var videosRequest = youtubeService.Videos.List("statistics");
-            videosRequest.Id = string.Join(",", videoIds);
-            var videosResponse = await videosRequest.ExecuteAsync();
-
-            videos.AddRange(playlistResponse.Items.Select(item =>
+            var videoStats = videosResponse.Items.FirstOrDefault(v => v.Id == item.Snippet.ResourceId.VideoId)?.Statistics;
+            return new VideoDto
             {
-                var videoStats = videosResponse.Items.FirstOrDefault(v => v.Id == item.Snippet.ResourceId.VideoId)?.Statistics;
-                return new VideoDto
+                Id = item.Snippet.ResourceId.VideoId,
+                Title = item.Snippet.Title,
+                Thumbnail = item.Snippet.Thumbnails.High.Url,
+                Statistics = new VideoStatistics
                 {
-                    Id = item.Snippet.ResourceId.VideoId,
-                    Title = item.Snippet.Title,
-                    Thumbnail = item.Snippet.Thumbnails.High.Url,
-                    Statistics = new VideoStatistics
-                    {
-                        Views = videoStats?.ViewCount?.ToString() ?? "0",
-                        Likes = videoStats?.LikeCount?.ToString() ?? "0",
-                        CommentCount = videoStats?.CommentCount?.ToString() ?? "0"
-                    }
-                };
-            }));
-        }
-
-        return videos;
+                    Views = videoStats?.ViewCount?.ToString() ?? "0",
+                    Likes = videoStats?.LikeCount?.ToString() ?? "0",
+                    CommentCount = videoStats?.CommentCount?.ToString() ?? "0"
+                }
+            };
+        }));
     }
+
+    return videos;
+}
+
 
     public async Task<IEnumerable<VideoDto>> GetUserShorts(string accessToken)
     {

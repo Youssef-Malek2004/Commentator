@@ -28,7 +28,12 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseCors("AllowNextApp");
     app.MapOpenApi();
+}
+else
+{
+    app.UseCors("AllowNextAppProd");
 }
 
 app.MapGet("Testing", (HttpContext context) =>
@@ -37,7 +42,6 @@ app.MapGet("Testing", (HttpContext context) =>
 });
 
 
-app.UseCors("AllowNextAppProd");
 app.UseHttpsRedirection();
 app.MapControllers();
 
