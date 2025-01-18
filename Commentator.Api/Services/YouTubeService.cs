@@ -79,15 +79,10 @@ public class YouTubeService : IYouTubeService
 
         // Check duration - Shorts are 60 seconds or less
         var duration = video.ContentDetails.Duration;
+        Console.Out.WriteLine(System.Xml.XmlConvert.ToTimeSpan(duration).TotalSeconds);
         if (System.Xml.XmlConvert.ToTimeSpan(duration).TotalSeconds <= 60)
         {
-            // For short duration videos, check if it's marked as a Short
-            if (video.Snippet?.Title?.Contains("#shorts", StringComparison.OrdinalIgnoreCase) == true ||
-                video.Snippet?.Description?.Contains("#shorts", StringComparison.OrdinalIgnoreCase) == true ||
-                video.Snippet?.Tags?.Any(t => t.Equals("shorts", StringComparison.OrdinalIgnoreCase)) == true)
-            {
-                return true;
-            }
+            return true;
         }
 
         return false;
