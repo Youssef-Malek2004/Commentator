@@ -36,35 +36,33 @@ public class YouTubeService : IYouTubeService
             playlistRequest.MaxResults = 50;
 
             var playlistResponse = await playlistRequest.ExecuteAsync();
+            var videoIds = playlistResponse.Items.Select(item => item.Snippet.ResourceId.VideoId).ToList();
 
-            var regularVideos = playlistResponse.Items.Where(item =>
-                !(item.Snippet.Title.Contains("#shorts", StringComparison.OrdinalIgnoreCase) ||
-                  (item.Snippet.Description?.Contains("#shorts", StringComparison.OrdinalIgnoreCase) ?? false)));
-
-            var videoIds = regularVideos.Select(item => item.Snippet.ResourceId.VideoId).ToList();
-
-            if (!videoIds.Any()) continue;
-
-            var videosRequest = youtubeService.Videos.List("statistics,contentDetails");
-            videosRequest.Id = string.Join(",", videoIds);
-            var videosResponse = await videosRequest.ExecuteAsync();
-
-            videos.AddRange(regularVideos.Select(item =>
+            foreach (var videoId in videoIds)
             {
-                var videoStats = videosResponse.Items.FirstOrDefault(v => v.Id == item.Snippet.ResourceId.VideoId)?.Statistics;
-                return new VideoDto
+                if (!await IsShort(youtubeService, videoId))  // Only add if NOT a short
                 {
-                    Id = item.Snippet.ResourceId.VideoId,
-                    Title = item.Snippet.Title,
-                    Thumbnail = item.Snippet.Thumbnails.High.Url,
-                    Statistics = new VideoStatistics
+                    var item = playlistResponse.Items.First(i => i.Snippet.ResourceId.VideoId == videoId);
+                    var videosRequest = youtubeService.Videos.List("statistics");
+                    videosRequest.Id = videoId;
+                    var videosResponse = await videosRequest.ExecuteAsync();
+                    var videoStats = videosResponse.Items.FirstOrDefault()?.Statistics;
+
+                    videos.Add(new VideoDto
                     {
-                        Views = videoStats?.ViewCount?.ToString() ?? "0",
-                        Likes = videoStats?.LikeCount?.ToString() ?? "0",
-                        CommentCount = videoStats?.CommentCount?.ToString() ?? "0"
-                    }
-                };
-            }));
+                        Id = videoId,
+                        Title = item.Snippet.Title,
+                        Thumbnail = item.Snippet.Thumbnails.High.Url,
+                        IsShort = false,
+                        Statistics = new VideoStatistics
+                        {
+                            Views = videoStats?.ViewCount?.ToString() ?? "0",
+                            Likes = videoStats?.LikeCount?.ToString() ?? "0",
+                            CommentCount = videoStats?.CommentCount?.ToString() ?? "0"
+                        }
+                    });
+                }
+            }
         }
 
         return videos;
