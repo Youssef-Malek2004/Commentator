@@ -5,7 +5,7 @@ using OpenQA.Selenium.Support.UI;
 
 namespace Commentator.Tests.Frontend;
 
-public class UITests
+public class UiTests
 {
     private IWebDriver _driver;
     private WebDriverWait _wait;
@@ -15,7 +15,10 @@ public class UITests
     public void Setup()
     {
         var options = new ChromeOptions();
-        options.AddArgument("--headless");
+        
+        // options.AddArgument("--headless");
+        options.AddArgument("--start-maximized");
+        
         _driver = new ChromeDriver(options);
         _wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
     }
@@ -29,7 +32,6 @@ public class UITests
         var brandText = _wait.Until(d => d.FindElement(By.ClassName("brand-text")));
         var subtitle = _wait.Until(d => d.FindElement(By.XPath("//p[contains(text(), 'AI-Powered')]")));
         var googleButton = _wait.Until(d => d.FindElement(By.XPath("//button[contains(@class, 'bg-white')]")));
-        var themeToggle = _wait.Until(d => d.FindElement(By.CssSelector("button[class*='inline-flex']")));
 
         // Verify content
         Assert.That(brandText.Text, Does.Contain("Commentator"));
@@ -59,7 +61,7 @@ public class UITests
     [TearDown]
     public void TearDown()
     {
-        _driver?.Quit();
-        _driver?.Dispose();
+        _driver.Quit();
+        _driver.Dispose();
     }
 }

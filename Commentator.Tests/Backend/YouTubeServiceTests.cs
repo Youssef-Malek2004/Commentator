@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using Commentator.Api.Services;
-using Google.Apis.Auth;
 
 namespace Commentator.Tests.Backend;
 
@@ -15,16 +14,15 @@ public class YouTubeServiceTests
     }
 
     [Test]
-    public async Task GetUserVideos_WithInvalidToken_ThrowsException()
+    public Task GetUserVideos_WithInvalidToken_ThrowsException()
     {
-        // Arrange
         var invalidToken = "invalid_token";
-
-        // Act & Assert
+        
         var exception = Assert.ThrowsAsync<Google.GoogleApiException>(
             async () => await _youtubeService.GetUserVideos(invalidToken)
         );
 
-        Assert.That(exception.Message, Does.Contain("Unauthorized"));
+        Assert.That(exception?.Message, Does.Contain("Unauthorized"));
+        return Task.CompletedTask;
     }
 }
