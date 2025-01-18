@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { MessageSquare, Sparkles, RefreshCw, Check, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchVideoComments, addCommentResponse, bulkAnswerComments } from "@/services/api";
+import Image from "next/image";
 
 interface Comment {
   id: string;
@@ -145,7 +146,14 @@ export function CommentSection({ videoId, accessToken }: { videoId: string; acce
               className="bg-secondary/50 rounded-lg p-4 space-y-4"
             >
               <div className="flex items-start gap-4">
-                <img src={comment.authorProfileImageUrl} alt={comment.author} className="w-10 h-10 rounded-full" />
+                <Image
+                  src={comment.authorProfileImageUrl}
+                  alt={comment.author}
+                  width={40}
+                  height={40}
+                  className="rounded-full"
+                  unoptimized
+                />
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <p className="font-medium text-white">{comment.author}</p>
