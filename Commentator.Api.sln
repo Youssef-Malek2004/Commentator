@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Commentator.Api", "Commentator.Api\Commentator.Api.csproj", "{C2AD2D25-3656-4D7B-99B8-6821C431822D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Commentator.Tests", "Commentator.Tests\Commentator.Tests.csproj", "{146828F5-3C7A-4302-A6EA-AC035E110A72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{C2AD2D25-3656-4D7B-99B8-6821C431822D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2AD2D25-3656-4D7B-99B8-6821C431822D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2AD2D25-3656-4D7B-99B8-6821C431822D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{146828F5-3C7A-4302-A6EA-AC035E110A72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{146828F5-3C7A-4302-A6EA-AC035E110A72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{146828F5-3C7A-4302-A6EA-AC035E110A72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{146828F5-3C7A-4302-A6EA-AC035E110A72}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
