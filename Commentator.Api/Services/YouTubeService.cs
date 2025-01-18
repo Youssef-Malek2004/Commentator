@@ -70,32 +70,48 @@ public class YouTubeService : IYouTubeService
 
     private async Task<bool> IsShort(Google.Apis.YouTube.v3.YouTubeService youtubeService, string videoId)
     {
-        var videoRequest = youtubeService.Videos.List("contentDetails");
+        var videoRequest = youtubeService.Videos.List("contentDetails,snippet,player");
         videoRequest.Id = videoId;
         var videoResponse = await videoRequest.ExecuteAsync();
         var video = videoResponse.Items.FirstOrDefault();
 
         if (video == null) return false;
 
-        // Check video dimensions - Shorts are typically vertical (height > width)
-        var width = video.ContentDetails.Dimension?.Split('x').FirstOrDefault();
-        var height = video.ContentDetails.Dimension?.Split('x').LastOrDefault();
-
-        if (int.TryParse(width, out int w) && int.TryParse(height, out int h))
+        // Check video dimensions from player data
+        var playerHtml = video.Player.EmbedHtml;
+        if (playerHtml != null)
         {
-            if (h > w) return true;
+            // Extract width and height from embed HTML
+            var widthMatch = System.Text.RegularExpressions.Regex.Match(playerHtml, @"width=""(\d+)""");
+            var heightMatch = System.Text.RegularExpressions.Regex.Match(playerHtml, @"height=""(\d+)""");
+
+            if (widthMatch.Success && heightMatch.Success)
+            {
+                int width = int.Parse(widthMatch.Groups[1].Value);
+                int height = int.Parse(heightMatch.Groups[1].Value);
+                Console.WriteLine($"Video {videoId}: {width}x{height}");
+
+                // Vertical video check (typical short aspect ratio is 9:16)
+                if (height > width)
+                {
+                    return true;
+                }
+            }
         }
 
-        // Check duration - Shorts are 60 seconds or less
+        // Fallback to duration and tags check
         var duration = video.ContentDetails.Duration;
         if (System.Xml.XmlConvert.ToTimeSpan(duration).TotalSeconds <= 60)
         {
-            return true;
+            if (video.Snippet?.Title?.Contains("#shorts", StringComparison.OrdinalIgnoreCase) == true ||
+                video.Snippet?.Description?.Contains("#shorts", StringComparison.OrdinalIgnoreCase) == true ||
+                video.Snippet?.Tags?.Any(t => t.Equals("shorts", StringComparison.OrdinalIgnoreCase)) == true)
+            {
+                return true;
+            }
         }
 
-        // Check title/description for #shorts
-        return video.Snippet?.Title?.Contains("#shorts", StringComparison.OrdinalIgnoreCase) == true ||
-               video.Snippet?.Description?.Contains("#shorts", StringComparison.OrdinalIgnoreCase) == true;
+        return false;
     }
 
     public async Task<IEnumerable<VideoDto>> GetUserShorts(string accessToken)
